@@ -1,3 +1,6 @@
+import csv
+
+
 class Election:
     # does instant runoff election
 
@@ -5,8 +8,24 @@ class Election:
         self.routes = routes
         self.voters = voters
 
-    def load_votes(self):
-        pass
+    def load_votes(self, filename: str):
+
+        with open(filename, newline='') as csvFile:
+            data_list = list(csv.DictReader(csvFile))
+
+        # simplify the route names
+        old_headers = list(data_list[0].keys())
+        new_headers = old_headers.copy()
+        for i, header in enumerate(new_headers):
+            new_headers[i] = header.replace('Which route would you prefer? Pick an order in which you prefer routes. '
+                                            'MAKE SURE THAT YOU RANK ALL ROUTES AT DIFFERENT PRIORITIES. ', '')
+
+        self.routes = new_headers[2:]
+        # update all headers for the enquete answers heeeeeeeee
+        for row in data_list:
+            for i in range(len(new_headers)):
+                data_list[new_headers[i]] = data_list.pop(old_headers[i])
+
 
     def rank_routes(self) -> dict:
         # counts the votes for each route
