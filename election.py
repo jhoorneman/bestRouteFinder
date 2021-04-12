@@ -34,7 +34,7 @@ class ElectionResult:
 
     def get_winner(self) -> Optional[str]:
         ranking = self.rank_routes()
-        highest_score = max(ranking.keys())
+        highest_score = max(ranking.values())
         if highest_score <= len(self.voters) / 2:
             # no majority is present
             return None
@@ -64,7 +64,12 @@ class ElectionResult:
                 last_places += [route]
 
         if len(last_places) > 1:
-            raise NotImplementedError('resolve ties')
+            # TODO: THIS IS FLAWED
+            print('WRONGLY returning alphabetically last {} from tied last place between {}'.format(
+                last_places[-1],
+                last_places
+            ))
+            last_place = last_places[-1]
         else:
             last_place = last_places[0]
 
@@ -76,7 +81,8 @@ class ElectionResult:
         new_routes.remove(route)
         new_voters = copy.deepcopy(self.voters)
         for voter in new_voters:
-            voter.ranking.remove(route)
+            if route in voter.ranking:
+                voter.ranking.remove(route)
 
         return ElectionResult(new_routes, new_voters)
 
