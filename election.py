@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Set
+from typing import Optional, Dict, Set, List
 from random import choice
 from voter import Voter
 import copy
@@ -32,10 +32,19 @@ def election_result_from_file(filename: str):
                 continue
             route_index = int(row[route][:-7])
             ranking[route_index] = route
+        if has_empty_element(ranking): 
+            raise Exception("Input is wrong or interpretation is wrong. Ranking of voter {} has empty element.".format(
+            name
+        ))
         voter = Voter(name,ranking)
         voters.append(voter)
     return ElectionResult(routes, voters)
 
+def has_empty_element(l: List[str]) -> bool:
+    for element in l:
+        if element == '': 
+            return True
+    return False
 
 class ElectionResult:
     # does instant runoff election
