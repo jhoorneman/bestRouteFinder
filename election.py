@@ -4,6 +4,7 @@ from voter import Voter
 import copy
 import time
 import csv
+import os
 
 
 def election_result_from_file(filename: str):
@@ -185,7 +186,7 @@ def get_transitive_closure(twod_dict: Dict[str, Dict[str, int]]) -> Dict[str, Di
 
 def find_tideman_winner(election: ElectionResult) -> str:
     # finds winning route by using https://en.wikipedia.org/wiki/Tideman_alternative_method
-    print('Finding winning route.. starting score:\n{}'.format(election.get_interim_score()))
+    # print('Finding winning route.. starting score:\n{}'.format(election.get_interim_score()))
     winner = None
     while winner is None:
         smith_set = get_smith_set(election)
@@ -226,6 +227,7 @@ def print_results_slowly(election: ElectionResult):
     print_list = []
 
     while len(number_list) > 0:
+        os.system('cls')
         print_list.append(sample(number_list, 1)[0])
         print_1v1s(election, print_list)
         time.sleep(1)
@@ -248,8 +250,6 @@ def print_1v1s(election: ElectionResult, randomnumberlist: list) -> None:
                     out_string += f"{bcolors.OKGREEN}+ {bcolors.ENDC}"
                 else:
                     out_string += f"{bcolors.FAIL}- {bcolors.ENDC}"
-            
-
 
         out_string += '\n'
 
