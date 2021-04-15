@@ -3,3 +3,4 @@ venv
 *.csv
 git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/master
 .vscode
+__pycache__
