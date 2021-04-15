@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Set, List
-from random import choice
+from random import choice, sample
 from voter import Voter
 import copy
 import time
@@ -220,7 +220,18 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def print_1v1s(election: ElectionResult) -> None:
+
+def print_results_slowly(election: ElectionResult):
+    number_list = list(range(len(election.routes)**2))
+    print_list = []
+
+    while len(number_list) > 0:
+        print_list.append(sample(number_list,1))
+        print_1v1s(election, print_list)
+        time.sleep(1)
+        
+
+def print_1v1s(election: ElectionResult, randomnumberlist: list) -> None:
     votes = election.get_pairwise_votes()
     match_results = {
         r1: {r2: r1 != r2 and votes[r1][r2] >= votes[r2][r1] for r2 in election.routes}
@@ -230,11 +241,15 @@ def print_1v1s(election: ElectionResult) -> None:
     for main_route in match_results:
         out_string += "{:<55}".format(main_route) + '\t'
         for vs_route in match_results[main_route]:
-            did_win = match_results[main_route][vs_route]
-            if did_win:
-                out_string += f"{bcolors.OKGREEN}+ {bcolors.ENDC}"
-            else:
-                out_string += f"{bcolors.FAIL}- {bcolors.ENDC}"
+            index = election.routes.index(main_route) * len(election.routes) + election.routes.index(vs_route)
+            if index in randomnumberlist:
+                did_win = match_results[main_route][vs_route]
+                if did_win:
+                    out_string += f"{bcolors.OKGREEN}+ {bcolors.ENDC}"
+                else:
+                    out_string += f"{bcolors.FAIL}- {bcolors.ENDC}"
+            
+
 
         out_string += '\n'
 
