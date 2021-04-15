@@ -226,7 +226,7 @@ def print_results_slowly(election: ElectionResult):
     print_list = []
 
     while len(number_list) > 0:
-        print_list.append(sample(number_list,1))
+        print_list.append(sample(number_list, 1)[0])
         print_1v1s(election, print_list)
         time.sleep(1)
         
