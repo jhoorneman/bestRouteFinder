@@ -208,3 +208,34 @@ def find_tideman_winner(election: ElectionResult) -> str:
     print(winner + ' got the most votes!')
 
     return winner
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+def print_1v1s(election: ElectionResult) -> None:
+    votes = election.get_pairwise_votes()
+    match_results = {
+        r1: {r2: r1 != r2 and votes[r1][r2] >= votes[r2][r1] for r2 in election.routes}
+        for r1 in election.routes
+    }
+    out_string = ''
+    for main_route in match_results:
+        out_string += "{:<55}".format(main_route) + '\t'
+        for vs_route in match_results[main_route]:
+            did_win = match_results[main_route][vs_route]
+            if did_win:
+                out_string += f"{bcolors.OKGREEN}+ {bcolors.ENDC}"
+            else:
+                out_string += f"{bcolors.FAIL}- {bcolors.ENDC}"
+
+        out_string += '\n'
+
+    print(out_string)
