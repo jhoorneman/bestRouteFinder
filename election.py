@@ -43,7 +43,7 @@ class ElectionResult:
             raise ValueError('Something strange is going on with {}'.format(self.routes))
         return top_scorers[0]
 
-    def rank_routes(self) -> dict:
+    def rank_routes(self) -> Dict[str, int]:
         # counts the votes for each route
         prel_result = {route: 0 for route in self.routes}
         for voter in self.voters:
