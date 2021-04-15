@@ -1,7 +1,8 @@
 from typing import Optional, Dict, Set
-
+from random import choice
+from voter import Voter
 import copy
-
+import time
 import csv
 
 
@@ -10,18 +11,29 @@ def election_result_from_file(filename: str):
         data_list = list(csv.DictReader(csvFile))
 
     # simplify the route names
-    old_headers = list(data_list[0].keys())
-    new_headers = old_headers.copy()
-    for i, header in enumerate(new_headers):
-        new_headers[i] = header.replace('Which route would you prefer? Pick an order in which you prefer routes. '
+    old_keys = list(data_list[0].keys())
+    new_keys = old_keys.copy()
+    for i, key in enumerate(new_keys):
+        new_keys[i] = key.replace('Which route would you prefer? Pick an order in which you prefer routes. '
                                         'MAKE SURE THAT YOU RANK ALL ROUTES AT DIFFERENT PRIORITIES. ', '')
 
-    routes = new_headers[2:]
-    # update all headers for the enquete answers heeeeeeeee
+    routes = new_keys[2:]
+    # update all keys (=questions) for the enquete answers
     for row in data_list:
-        for i in range(len(new_headers)):
-            data_list[new_headers[i]] = data_list.pop(old_headers[i])
-    voters = None  # TODO: somehow fetch voters from csv
+        for i in range(len(new_keys)):
+            row[new_keys[i]] = row.pop(old_keys[i])
+    voters = []
+    
+    for row in data_list:
+        name = row['What is your name?']
+        ranking = ['']*12
+        for route in row:
+            if route == 'Tijdstempel' or route == 'What is your name?' : 
+                continue
+            route_index = int(row[route][:-7])
+            ranking[route_index] = route
+        voter = Voter(name,ranking)
+        voters.append(voter)
     return ElectionResult(routes, voters)
 
 
@@ -72,11 +84,14 @@ class ElectionResult:
 
         if len(last_places) > 1:
             # Failed to break ties; announce and complain
-            print('WRONGLY returning alphabetically last {} from tied last place between {}'.format(
-                sorted(last_places)[-1],
+            print('Failed to break ties using Copeland score between {}.\n Proceeding by eliminating a random route from the tied losers.'.format(
                 last_places
             ))
-            last_place = sorted(last_places)[-1]
+            # select a random loser from the last places
+            last_place = choice(last_places)
+            print('The route {} was randomly selected and eliminated from the pool'.format(
+                last_place
+            ))
         else:
             last_place = last_places[0]
 
@@ -178,7 +193,7 @@ def find_tideman_winner(election: ElectionResult) -> str:
         print("Eliminating route '{}'".format(last_place))
         election = election.without_route(last_place)  # returns new ElectionResult, does not modify in place
         print('New interim score:\n{}'.format(election.get_interim_score()))
-        # TODO: add os.sleep(10) here..?
+        time.sleep(3)
 
     print('FOUND WINNING ROUTE!')
     print(winner + ' got the most votes!')
