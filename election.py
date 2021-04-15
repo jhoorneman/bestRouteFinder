@@ -30,13 +30,17 @@ def election_result_from_file(filename: str):
         for route in row:
             if route == 'Tijdstempel' or route == 'What is your name?' : 
                 continue
-            route_index = int(row[route][:-7])
+            route_index = int(row[route][:-7]) - 1
             ranking[route_index] = route
+<<<<<<< Updated upstream
         if has_empty_element(ranking): 
             raise Exception("Input is wrong or interpretation is wrong. Ranking of voter {} has empty element.".format(
             name
         ))
         voter = Voter(name,ranking)
+=======
+        voter = Voter(name, ranking)
+>>>>>>> Stashed changes
         voters.append(voter)
     return ElectionResult(routes, voters)
 
