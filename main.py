@@ -9,4 +9,4 @@ print_results_slowly(results, 0)
 time.sleep(2)
 find_tideman_winner(results)
 
-input('Press any key to close')
+input('\nPress any key to close')
