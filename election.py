@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Set, List
-from random import choice, sample
+from random import choice, randrange
 from voter import Voter
 import copy
 import time
@@ -210,46 +210,48 @@ def find_tideman_winner(election: ElectionResult) -> str:
 
     return winner
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
+def print_results_slowly(election: ElectionResult, delay: float = 1):
+    # prints a table of condorcet 1v1's with a delay. Delay is 1 second standard.
+    initial_index_list = list(range(len(election.routes)**2))
+    print_index_list = []
 
-def print_results_slowly(election: ElectionResult):
-    number_list = list(range(len(election.routes)**2))
-    print_list = []
-
-    while len(number_list) > 0:
+    while len(initial_index_list) > 0:
         os.system('cls')
-        print_list.append(sample(number_list, 1)[0])
-        print_1v1s(election, print_list)
-        time.sleep(1)
-        
+        print_index_list.append(initial_index_list.pop(randrange(len(initial_index_list))))
+        print_1v1s(election, print_index_list)
+        time.sleep(delay)
 
-def print_1v1s(election: ElectionResult, randomnumberlist: list) -> None:
+
+def print_1v1s(election: ElectionResult, index_list: list = None) -> None:
+    # print the 1v1's from the condorcet election system. A 1v1 against itself always is a loss and a tie shows up as a
+    # win. When an index_list is provided, only the 1v1's at those indexes in the match_results table are included.
+    # Note: this only shows one complete set of 1v1s. When the smith set has multiple routes and a second round is
+    # needed, this is not shown by this method.
+
+    # ANSI color escape sequences. Used to print to the terminal in color
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    ENDC = '\033[0m'
+
     votes = election.get_pairwise_votes()
     match_results = {
         r1: {r2: r1 != r2 and votes[r1][r2] >= votes[r2][r1] for r2 in election.routes}
         for r1 in election.routes
     }
+
+    # construct the 1v1 table as a string and print it in the end
     out_string = ''
     for main_route in match_results:
-        out_string += "{:<55}".format(main_route) + '\t'
+        out_string += "{:<55}".format(main_route[:55]) + '\t'
         for vs_route in match_results[main_route]:
             index = election.routes.index(main_route) * len(election.routes) + election.routes.index(vs_route)
-            if index in randomnumberlist:
+            if index in index_list:
                 did_win = match_results[main_route][vs_route]
                 if did_win:
-                    out_string += f"{bcolors.OKGREEN}+ {bcolors.ENDC}"
+                    out_string += f"{GREEN}+ {ENDC}"
                 else:
-                    out_string += f"{bcolors.FAIL}- {bcolors.ENDC}"
+                    out_string += f"{RED}- {ENDC}"
 
         out_string += '\n'
 
